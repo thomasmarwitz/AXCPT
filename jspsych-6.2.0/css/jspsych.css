@@ -32,6 +32,7 @@
    margin: auto; /* this is for overflowing content */
    color: black;
    font-size: 50px;
+   line-height: 50px;
  }
 
  .jspsych-top {
