@@ -10,6 +10,7 @@
     <link href="jspsych-6.2.0/css/jspsych.css" rel="stylesheet" type="text/css">
     <!-- PLugins -->
     <script src="jspsych-6.2.0/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="jspsych-6.2.0/plugins/jspsych-instructions.js"></script>
     <!--Include jQuery library-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <!--load custom helper scripts-->
@@ -20,7 +21,7 @@
 <body id="experiment-body"></body>
 <script>
 
-    const AMOUNT_TRIALS = 20 // Cue + Probe is ONE trial
+    const AMOUNT_TRIALS = 10 // Cue + Probe is ONE trial
     const ALPHABET = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ']
     const PHP_SCRIPT_FILE = 'write_data.php' // SAVING DATA PHP-SCRIPT
     const CUE = "A"
@@ -80,6 +81,23 @@
             }
         })
     }
+    
+    function answeredLastTrial() {
+        const LAST_DATA = jsPsych.data.get().last().values()[0]
+        return LAST_DATA.rt != null
+    }
+
+    
+
+    const INSTRUCTIONS = {
+        type: "instructions",
+        pages: [
+            "Instruktionen...",
+            "Mit den Tasten f/j soll zwischen Target / Non-Target unterschieden werden"
+        ],
+        show_clickable_nav: true,
+    }
+
 
     const CUE_PRESENTATION = {
         type: "html-keyboard-response",
@@ -95,10 +113,6 @@
         choices: [TARGET_KEY, NON_TARGET_KEY],
     }
 
-    function answeredLastTrial() {
-        const LAST_DATA = jsPsych.data.get().last().values()[0]
-        return LAST_DATA.rt != null
-    }
 
     const PENALITY = {
         type: "html-keyboard-response",
@@ -111,14 +125,12 @@
         trial_duration: 1,
     }
 
-    function getDelayTrial(delayTime) {
-        return {
-            type: "html-keyboard-response",
-            stimulus: "",
-            choices: jsPsych.NO_KEYS,
-            trial_duration: delayTime,
-        }
+
+    const END = {
+        type: "html-keyboard-response",
+        stimulus: "Die Demo ist zu Ende :)",
     }
+
     
     const EXP_TRIALS = {
         timeline: [CUE_PRESENTATION, getDelayTrial(DELAY), PROBE_PRESENTATION, PENALITY, getDelayTrial(INTERTRIAL_DELAY)],
@@ -126,7 +138,7 @@
     }
 
     jsPsych.init({
-        timeline: [EXP_TRIALS],
+        timeline: [INSTRUCTIONS, EXP_TRIALS, END],
     })
 </script>
 </html>
