@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate-Faces Experiment</title>
+    <script src="jspsych-6.2.0/jspsych.js"></script>
+    <!-- CSS -->
+    <link href="jspsych-6.2.0/css/jspsych.css" rel="stylesheet" type="text/css">
+    <!-- PLugins -->
+    <script src="jspsych-6.2.0/plugins/jspsych-html-keyboard-response.js"></script>
+    <!--Include jQuery library-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!--load custom helper scripts-->
+    <script src="helper.js"></script>
+    <script src="csv-formatter.js"></script> <!--JSON2CSV-->
+
+</head>
+<body id="experiment-body"></body>
+<script>
+
+    const AMOUNT_TRIALS = 20 // Cue + Probe is ONE trial
+    const ALPHABET = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ']
+    const PHP_SCRIPT_FILE = 'write_data.php' // SAVING DATA PHP-SCRIPT
+    const CUE = "A"
+    const TARGET_KEY = "f"
+    const PROBE = "X"
+    const NON_TARGET_KEY = "j"
+    const EXCLUDED_CUE = [CUE, PROBE, "K", "Y"]
+    const EXCLUDED_PROBE = [CUE, PROBE, "K", "Y"] // alles, außer Y und K, A und X
+    const NON_CUE = ALPHABET.filter((c) => !EXCLUDED_CUE.includes(c)) 
+    const NON_PROBE = ALPHABET.filter((c) => !EXCLUDED_PROBE.includes(c)) 
+    const SHORT_CONDITION_TIME = 1000
+    const LONG_CONDITION_TIME = 5000
+    const MAX_ANSWER_TIME = 1500
+    const STIMULUS_PRESENTATION_TIME = 500
+    const DISTRACTION_INTERFERENCE = false
+    const DELAY = SHORT_CONDITION_TIME // in seconds, long delay: 5(!)-10s
+
+    const INTERTRIAL_DELAY = DELAY == SHORT_CONDITION_TIME ? LONG_CONDITION_TIME : SHORT_CONDITION_TIME // varies inversly
+
+    function getRandomElement(array) {
+        return jsPsych.randomization.sampleWithoutReplacement(array, 1)[0]
+    }
+
+    function generateTrialList(n) {
+        const AMOUNT_TARGET = n * 0.7               // AX
+        const AMOUNT_NON_CUE_PROBE = n * 0.1        // BX
+        const AMOUNT_CUE_NON_PROBE = n * 0.1        // AY
+        const AMOUNT_NON_CUE_NON_PROBE = n * 0.1    // BY
+
+        const STANDARD_ARRAY = jsPsych.randomization.repeat(
+            ["AX", "BX", "AY", "BY"], 
+            [AMOUNT_TARGET, AMOUNT_NON_CUE_PROBE, AMOUNT_NON_CUE_PROBE, AMOUNT_NON_CUE_NON_PROBE], 
+            false) // generate the conditions with standard values
+
+        return STANDARD_ARRAY.map((condition) => {
+            const RANDOM_NON_CUE =      getRandomElement(NON_CUE)
+            const RANDOM_NON_PROBE =    getRandomElement(NON_PROBE)
+            
+            return ( // turn standard array with mapping into destandardized array (random non cues/probes)
+                condition
+                .replace("B", RANDOM_NON_CUE)
+                .replace("Y", RANDOM_NON_PROBE)
+            )
+        })
+    }
+
+    function generateTimelineVariables(n) {
+        if (n % 10 != 0) {
+            console.log("Warning, not a multiple of ten")
+            n += 10 - (n % 10) // fill up to ten
+        }
+        const TRIAL_LIST = generateTrialList(n)
+        return TRIAL_LIST.map((condition) => {
+            return {
+                cue: condition[0],
+                probe: condition[1],
+            }
+        })
+    }
+
+    const CUE_PRESENTATION = {
+        type: "html-keyboard-response",
+        stimulus: jsPsych.timelineVariable("cue"),
+        trial_duration: STIMULUS_PRESENTATION_TIME,
+    }
+
+
+    const PROBE_PRESENTATION = {
+        type: "html-keyboard-response",
+        stimulus: jsPsych.timelineVariable("probe"),
+        trial_duration: MAX_ANSWER_TIME, 
+        choices: [TARGET_KEY, NON_TARGET_KEY],
+    }
+
+    function answeredLastTrial() {
+        const LAST_DATA = jsPsych.data.get().last().values()[0]
+        return LAST_DATA.rt != null
+    }
+
+    const PENALITY = {
+        type: "html-keyboard-response",
+        stimulus: () => {
+            return answeredLastTrial() ? "" : "TOO SLOW!"
+        },
+        on_start: (data) => {
+            data.trial_duration = answeredLastTrial() == null ? 1 : 2000
+        },
+        trial_duration: 1,
+    }
+
+    function getDelayTrial(delayTime) {
+        return {
+            type: "html-keyboard-response",
+            stimulus: "",
+            choices: jsPsych.NO_KEYS,
+            trial_duration: delayTime,
+        }
+    }
+    
+    const EXP_TRIALS = {
+        timeline: [CUE_PRESENTATION, getDelayTrial(DELAY), PROBE_PRESENTATION, PENALITY, getDelayTrial(INTERTRIAL_DELAY)],
+        timeline_variables: generateTimelineVariables(AMOUNT_TRIALS),
+    }
+
+    jsPsych.init({
+        timeline: [EXP_TRIALS],
+    })
+</script>
+</html>
