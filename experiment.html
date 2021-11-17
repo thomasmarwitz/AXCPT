@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rate-Faces Experiment</title>
+    <title>AXCPT Mockup</title>
     <script src="jspsych-6.2.0/jspsych.js"></script>
     <!-- CSS -->
     <link href="jspsych-6.2.0/css/jspsych.css" rel="stylesheet" type="text/css">
@@ -85,6 +85,15 @@
     function answeredLastTrial() {
         const LAST_DATA = jsPsych.data.get().last().values()[0]
         return LAST_DATA.rt != null
+    }
+
+    function getDelayTrial(delayTime) {
+        return {
+            type: "html-keyboard-response",
+            stimulus: "",
+            choices: jsPsych.NO_KEYS,
+            trial_duration: delayTime,
+        }
     }
 
     
