@@ -16,6 +16,8 @@
     <!--load custom helper scripts-->
     <script src="helper.js"></script>
     <script src="csv-formatter.js"></script> <!--JSON2CSV-->
+    <!--CSS-->
+    <link href="styles.css" rel="stylesheet" type="text/css">
 
 </head>
 <body id="experiment-body"></body>
@@ -38,11 +40,17 @@
     const STIMULUS_PRESENTATION_TIME = 500
     const DISTRACTION_INTERFERENCE = false
     const DELAY = SHORT_CONDITION_TIME // in seconds, long delay: 5(!)-10s
+    const CUE_PROBE_FONTSIZE = "60px"
 
     const INTERTRIAL_DELAY = DELAY == SHORT_CONDITION_TIME ? LONG_CONDITION_TIME : SHORT_CONDITION_TIME // varies inversly
 
     function getRandomElement(array) {
         return jsPsych.randomization.sampleWithoutReplacement(array, 1)[0]
+    }
+
+    function changeBackgroundColor(colorString) {
+        $("#jspsych-target").css("background-color", colorString)
+        $("#experiment-body").css("background-color", colorString)
     }
 
     function generateTrialList(n) {
@@ -110,7 +118,9 @@
 
     const CUE_PRESENTATION = {
         type: "html-keyboard-response",
-        stimulus: jsPsych.timelineVariable("cue"),
+        stimulus: () => {
+            return `<span style="font-size:${CUE_PROBE_FONTSIZE}">${jsPsych.timelineVariable("cue", true)}</span>`
+        },
         trial_duration: STIMULUS_PRESENTATION_TIME,
         choices: jsPsych.NO_KEYS,
     }
@@ -118,7 +128,9 @@
 
     const PROBE_PRESENTATION = {
         type: "html-keyboard-response",
-        stimulus: jsPsych.timelineVariable("probe"),
+        stimulus: () => {
+            return `<span style="font-size:${CUE_PROBE_FONTSIZE}">${jsPsych.timelineVariable("probe", true)}</span>`
+        },
         trial_duration: MAX_ANSWER_TIME, 
         choices: [TARGET_KEY, NON_TARGET_KEY],
     }
@@ -130,9 +142,16 @@
             return answeredLastTrial() ? "" : "TOO SLOW!"
         },
         on_start: (data) => {
-            data.trial_duration = answeredLastTrial() == null ? 1 : 2000
+            const hasAnswered = answeredLastTrial()
+            data.trial_duration = hasAnswered ? 10 : 2000
+            if (hasAnswered) {
+                changeBackgroundColor("#BFBFBF")
+            }
         },
         trial_duration: 1,
+        on_finish: () => {
+            changeBackgroundColor("#686868")
+        }
     }
 
 
