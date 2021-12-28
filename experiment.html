@@ -54,6 +54,8 @@
 
     const INTERTRIAL_DELAY = DELAY == SHORT_CONDITION_TIME ? LONG_CONDITION_TIME : SHORT_CONDITION_TIME // varies inversly
 
+    // UTILITY FUNCS
+
     function getRandomElement(array) {
         return jsPsych.randomization.sampleWithoutReplacement(array, 1)[0]
     }
@@ -159,12 +161,13 @@
     }
 
     const finishUp = () => {
-        let fileName = `AXCPT_${getDate("")}_${getTime("")}_${SUBJECT_ID}`
-        saveData(fileName, JSON2CSV(processData()))
+        const fileName = `AXCPT_${getDate("")}_${getTime("")}_${SUBJECT_ID}`
+        const relevantData = jsPsych.data.get().filter({relevant: true}).values() 
+        saveData(fileName, JSON2CSV(processData(relevantData)))
     }
 
 
-    
+    // TRIALS
 
     const INSTRUCTIONS = {
         type: "instructions",
@@ -242,8 +245,8 @@
         }
     }
 
-    // used for practicing
-    const FEEDBACK = {
+
+    const FEEDBACK = { // used for practicing
         type: "html-keyboard-response",
         stimulus: () => {
             if (!answeredLastTrial()) {
@@ -261,9 +264,13 @@
 
     const END = {
         type: "html-keyboard-response",
-        stimulus: "Die Demo ist zu Ende :)",
+        stimulus: "Das Experiment ist zu Ende, die Daten wurden gespeichert!",
+        on_start: () => {
+            finishUp() // save data
+        }
     }
 
+    // STRUCTURE
 
     const PRACTICE_TRIALS = {
         timeline: [CUE_PRESENTATION, getDelayTrial(DELAY), PROBE_PRESENTATION, FEEDBACK, getDelayTrial(INTERTRIAL_DELAY)],
