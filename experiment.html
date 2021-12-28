@@ -87,7 +87,7 @@
 
     function generateTimelineVariables(n) {
         if (n % 10 != 0) {
-            console.log("Warning, not a multiple of ten")
+            console.log("Warning, not a multiple of ten, filling up to multiple of ten")
             n += 10 - (n % 10) // fill up to ten
         }
         const TRIAL_LIST = generateTrialList(n)
@@ -107,7 +107,7 @@
     }
 
     function answeredLastTrialCorrect() {
-        return false
+        return jsPsych.data.get().filter({relevant: true}).last(1).values()[0].correct
     }
 
     function getDelayTrial(delayTime) {
@@ -166,8 +166,10 @@
             data.probe = jsPsych.timelineVariable("probe", true)
             data.condition = jsPsych.timelineVariable("condition", true)
             data.type = jsPsych.timelineVariable("isTarget", true)
-            const answer = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.keypress)
-            data.correct = answer === TARGET_ANSWER
+            const answer = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)
+            const correctAnswer = data.type === "target" ? TARGET_ANSWER : NON_TARGET_ANSWER
+            data.correct = answer === correctAnswer
+            data.relevant = true // to filter for these trials
         }
     }
 
