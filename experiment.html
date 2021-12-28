@@ -43,6 +43,7 @@
     const DELAY = SHORT_CONDITION_TIME // in seconds, long delay: 5(!)-10s
     const CUE_PROBE_FONTSIZE = "60px"
     const PENALITY_FONTSIZE = "60px"
+    const FEEDBACK_FONTSIZE = "60px"
     const VISUAL_FEEDBACK_COLOR = "#BFBFBF"
     const BACKGROUND_COLOR = "#686868"
     const TARGET_ANSWER = "f"
@@ -177,7 +178,7 @@
     const PENALITY = {
         type: "html-keyboard-response",
         stimulus: () => {
-            return answeredLastTrial() ? "" : `<span style="font-size:${PENALITY_FONTSIZE}">TOO SLOW!</span>`
+            return answeredLastTrial() ? "" : `<span style="font-size:${PENALITY_FONTSIZE}">ZU LANGSAM!</span>`
         },
         on_start: (data) => {
             const hasAnswered = answeredLastTrial()
@@ -198,11 +199,11 @@
         type: "html-keyboard-response",
         stimulus: () => {
             if (!answeredLastTrial()) {
-                return `<span style="font-size:${PENALITY_FONTSIZE}">TOO SLOW!</span>`
+                return `<span style="font-size:${PENALITY_FONTSIZE}">ZU LANGSAM!</span>`
             } else if (answeredLastTrialCorrect()) {
-                return "RICHTIG"
+                return `<span style="font-size:${PENALITY_FONTSIZE};color: lightgreen">RICHTIG</span>`
             } else {
-                return "FALSCH"
+                return `<span style="font-size:${PENALITY_FONTSIZE};color: red">FALSCH</span>`
             }
         },
         trial_duration: 1000,
