@@ -48,6 +48,7 @@
     const BACKGROUND_COLOR = "#686868"
     const TARGET_ANSWER = "f"
     const NON_TARGET_ANSWER = "j"
+    let trialIndex = 0
 
     const INTERTRIAL_DELAY = DELAY == SHORT_CONDITION_TIME ? LONG_CONDITION_TIME : SHORT_CONDITION_TIME // varies inversly
 
@@ -86,7 +87,7 @@
         })
     }
 
-    function generateTimelineVariables(n) {
+    function generateTimelineVariables(n, isPractice=false) {
         if (n % 10 != 0) {
             console.log("Warning, not a multiple of ten, filling up to multiple of ten")
             n += 10 - (n % 10) // fill up to ten
@@ -98,6 +99,7 @@
                 probe: condition.probe,
                 condition: condition.condition,
                 isTarget: condition.isTarget,
+                isPractice,
             }
         })
     }
@@ -119,6 +121,30 @@
             trial_duration: delayTime,
         }
     }
+
+    function processData(data) {
+
+        const formattedData = []
+
+        for (let trialData of data) {
+            formattedData.push({
+                subcode: SUBJECT_ID,
+                time: trialData.time,
+                timeelap: trialData.time_elapsed,
+                phase: trialData.phase ? "practice" : "test",
+                trialNr: trialData.trialIndex,
+                trialType: trialData.type,
+                condition: trialData.condition,
+                cue: trialData.cue,
+                probe: trialData.probe,
+                correct: trialData.correct,
+                rt: roundTo(trialData.rt, 2),
+            })
+        }
+
+        return formattedData
+    }
+
 
     
 
@@ -164,6 +190,9 @@
         trial_duration: MAX_ANSWER_TIME, 
         choices: [TARGET_KEY, NON_TARGET_KEY],
         on_finish: (data) => {
+            data.phase = jsPsych.timelineVariable("isPractice", true) ? "practice" : "experiment"
+            data.time = getTime()
+            data.trialIndex = ++trialIndex // count continuously
             data.cue = jsPsych.timelineVariable("cue", true)
             data.probe = jsPsych.timelineVariable("probe", true)
             data.condition = jsPsych.timelineVariable("condition", true)
@@ -220,12 +249,12 @@
 
     const PRACTICE_TRIALS = {
         timeline: [CUE_PRESENTATION, getDelayTrial(DELAY), PROBE_PRESENTATION, FEEDBACK, getDelayTrial(INTERTRIAL_DELAY)],
-        timeline_variables: generateTimelineVariables(AMOUNT_PRACTICE_TRIALS),
+        timeline_variables: generateTimelineVariables(AMOUNT_PRACTICE_TRIALS, isPractice=true),
     }
     
     const EXP_TRIALS = {
         timeline: [CUE_PRESENTATION, getDelayTrial(DELAY), PROBE_PRESENTATION, PENALITY_AND_VISUAL, getDelayTrial(INTERTRIAL_DELAY)],
-        timeline_variables: generateTimelineVariables(AMOUNT_EXPERIMENT_TRIALS),
+        timeline_variables: generateTimelineVariables(AMOUNT_EXPERIMENT_TRIALS, isPractice=false),
     }
 
     jsPsych.init({
