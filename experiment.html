@@ -23,7 +23,8 @@
 <body id="experiment-body"></body>
 <script>
 
-    const AMOUNT_TRIALS = 10 // Cue + Probe is ONE trial
+    const AMOUNT_EXPERIMENT_TRIALS = 10 // Cue + Probe is ONE trial
+    const AMOUNT_PRACTICE_TRIALS = 10
     const ALPHABET = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ']
     const PHP_SCRIPT_FILE = 'write_data.php' // SAVING DATA PHP-SCRIPT
     const CUE = "A"
@@ -117,11 +118,24 @@
         type: "instructions",
         pages: [
             "Instruktionen...",
-            "Mit den Tasten <strong>f / j</strong> soll zwischen <strong>Target / Non-Target</strong> unterschieden werden"
+            "Mit den Tasten <strong>f / j</strong> soll zwischen <strong>Target / Non-Target</strong> unterschieden werden",
+            "Drücke auf 'Weiter', um anhand einiger Beispiele zu üben"
         ],
         show_clickable_nav: true,
+        button_label_next: "Weiter",
+        allow_backward: false,
     }
 
+    
+    const AFTER_PRACTICE = {
+        type: "instructions",
+        pages: [
+            "Die Übung ist nun vorbei.<br><br>Drücke auf 'Weiter', um mit dem Experiment zu beginnen."
+        ],
+        show_clickable_nav: true,
+        button_label_next: "Weiter",
+        allow_backward: false,
+    }
 
     const CUE_PRESENTATION = {
         type: "html-keyboard-response",
@@ -166,7 +180,7 @@
     const FEEDBACK = {
         type: "html-keyboard-response",
         stimulus: () => {
-            if (answeredLastTrial()) {
+            if (!answeredLastTrial()) {
                 return `<span style="font-size:${PENALITY_FONTSIZE}">TOO SLOW!</span>`
             } else if (answeredLastTrialCorrect()) {
                 return "RICHTIG"
@@ -184,14 +198,19 @@
         stimulus: "Die Demo ist zu Ende :)",
     }
 
+
+    const PRACTICE_TRIALS = {
+        timeline: [CUE_PRESENTATION, getDelayTrial(DELAY), PROBE_PRESENTATION, FEEDBACK, getDelayTrial(INTERTRIAL_DELAY)],
+        timeline_variables: generateTimelineVariables(AMOUNT_PRACTICE_TRIALS),
+    }
     
     const EXP_TRIALS = {
         timeline: [CUE_PRESENTATION, getDelayTrial(DELAY), PROBE_PRESENTATION, PENALITY, getDelayTrial(INTERTRIAL_DELAY)],
-        timeline_variables: generateTimelineVariables(AMOUNT_TRIALS),
+        timeline_variables: generateTimelineVariables(AMOUNT_EXPERIMENT_TRIALS),
     }
 
     jsPsych.init({
-        timeline: [INSTRUCTIONS, EXP_TRIALS, END],
+        timeline: [INSTRUCTIONS, PRACTICE_TRIALS, AFTER_PRACTICE, EXP_TRIALS, END],
     })
 </script>
 </html>
