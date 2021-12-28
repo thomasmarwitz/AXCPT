@@ -41,6 +41,9 @@
     const DISTRACTION_INTERFERENCE = false
     const DELAY = SHORT_CONDITION_TIME // in seconds, long delay: 5(!)-10s
     const CUE_PROBE_FONTSIZE = "60px"
+    const PENALITY_FONTSIZE = "60px"
+    const VISUAL_FEEDBACK_COLOR = "#BFBFBF"
+    const BACKGROUND_COLOR = "#686868"
 
     const INTERTRIAL_DELAY = DELAY == SHORT_CONDITION_TIME ? LONG_CONDITION_TIME : SHORT_CONDITION_TIME // varies inversly
 
@@ -139,18 +142,18 @@
     const PENALITY = {
         type: "html-keyboard-response",
         stimulus: () => {
-            return answeredLastTrial() ? "" : "TOO SLOW!"
+            return answeredLastTrial() ? "" : `<span style="font-size:${PENALITY_FONTSIZE}">TOO SLOW!</span>`
         },
         on_start: (data) => {
             const hasAnswered = answeredLastTrial()
             data.trial_duration = hasAnswered ? 10 : 2000
             if (hasAnswered) {
-                changeBackgroundColor("#BFBFBF")
+                changeBackgroundColor(VISUAL_FEEDBACK_COLOR)
             }
         },
         trial_duration: 1,
         on_finish: () => {
-            changeBackgroundColor("#686868")
+            changeBackgroundColor(BACKGROUND_COLOR)
         }
     }
 
