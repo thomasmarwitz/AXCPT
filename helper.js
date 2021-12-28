@@ -8,9 +8,9 @@ function AddZero(num) {
 function getDate(separator="-") {
     let now = new Date()
     return [
-        AddZero(now.getDate()),
-        AddZero(now.getMonth() + 1),
         now.getFullYear(),
+        AddZero(now.getMonth() + 1),
+        AddZero(now.getDate()),
     ].join(separator)
 }
 

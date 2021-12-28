@@ -23,6 +23,7 @@
 <body id="experiment-body"></body>
 <script>
 
+    const SUBJECT_ID = jsPsych.randomization.randomID(16).toUpperCase()
     const AMOUNT_EXPERIMENT_TRIALS = 10 // Cue + Probe is ONE trial
     const AMOUNT_PRACTICE_TRIALS = 10
     const ALPHABET = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ']
@@ -48,6 +49,7 @@
     const BACKGROUND_COLOR = "#686868"
     const TARGET_ANSWER = "f"
     const NON_TARGET_ANSWER = "j"
+    const PHP_SCRIPT_FILE = "write_data.php"
     let trialIndex = 0
 
     const INTERTRIAL_DELAY = DELAY == SHORT_CONDITION_TIME ? LONG_CONDITION_TIME : SHORT_CONDITION_TIME // varies inversly
@@ -122,6 +124,8 @@
         }
     }
 
+    // DATA SAVING FUNCS
+
     function processData(data) {
 
         const formattedData = []
@@ -131,7 +135,7 @@
                 subcode: SUBJECT_ID,
                 time: trialData.time,
                 timeelap: trialData.time_elapsed,
-                phase: trialData.phase ? "practice" : "test",
+                phase: trialData.phase,
                 trialNr: trialData.trialIndex,
                 trialType: trialData.type,
                 condition: trialData.condition,
@@ -143,6 +147,20 @@
         }
 
         return formattedData
+    }
+
+    function saveData(name, data){
+        let xhr = new XMLHttpRequest();
+        xhr.open('POST', PHP_SCRIPT_FILE); // PHP_SCRIPT_FILE
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify({filename: name, filedata: data}));
+        console.log("saved data to: data/" + name);
+        return true;
+    }
+
+    const finishUp = () => {
+        let fileName = `AXCPT_${getDate("")}_${getTime("")}_${SUBJECT_ID}`
+        saveData(fileName, JSON2CSV(processData()))
     }
 
 
