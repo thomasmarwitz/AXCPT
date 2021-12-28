@@ -138,7 +138,8 @@
     const AFTER_PRACTICE = {
         type: "instructions",
         pages: [
-            "Die Übung ist nun vorbei.<br><br>Drücke auf 'Weiter', um mit dem Experiment zu beginnen."
+            "Die Übung ist nun vorbei.<br><br>Wenn du eine Eingabe getätigt hast, erhältst du visuelles Feedback in Form eines Flackerns",
+            "Drücke auf 'Weiter', um mit dem Experiment zu beginnen.",
         ],
         show_clickable_nav: true,
         button_label_next: "Weiter",
@@ -175,7 +176,7 @@
     }
 
 
-    const PENALITY = {
+    const PENALITY_AND_VISUAL = {
         type: "html-keyboard-response",
         stimulus: () => {
             return answeredLastTrial() ? "" : `<span style="font-size:${PENALITY_FONTSIZE}">ZU LANGSAM!</span>`
@@ -223,7 +224,7 @@
     }
     
     const EXP_TRIALS = {
-        timeline: [CUE_PRESENTATION, getDelayTrial(DELAY), PROBE_PRESENTATION, PENALITY, getDelayTrial(INTERTRIAL_DELAY)],
+        timeline: [CUE_PRESENTATION, getDelayTrial(DELAY), PROBE_PRESENTATION, PENALITY_AND_VISUAL, getDelayTrial(INTERTRIAL_DELAY)],
         timeline_variables: generateTimelineVariables(AMOUNT_EXPERIMENT_TRIALS),
     }
 
