@@ -45,6 +45,8 @@
     const PENALITY_FONTSIZE = "60px"
     const VISUAL_FEEDBACK_COLOR = "#BFBFBF"
     const BACKGROUND_COLOR = "#686868"
+    const TARGET_ANSWER = "f"
+    const NON_TARGET_ANSWER = "j"
 
     const INTERTRIAL_DELAY = DELAY == SHORT_CONDITION_TIME ? LONG_CONDITION_TIME : SHORT_CONDITION_TIME // varies inversly
 
@@ -72,11 +74,14 @@
             const RANDOM_NON_CUE =      getRandomElement(NON_CUE)
             const RANDOM_NON_PROBE =    getRandomElement(NON_PROBE)
             
-            return ( // turn standard array with mapping into destandardized array (random non cues/probes)
-                condition
-                .replace("B", RANDOM_NON_CUE)
-                .replace("Y", RANDOM_NON_PROBE)
-            )
+            return { // turn standard array with mapping into destandardized array (random non cues/probes)
+                    cue: condition[0]
+                        .replace("B", RANDOM_NON_CUE),
+                    probe: condition[1]
+                        .replace("Y", RANDOM_NON_PROBE),
+                    condition,
+                    isTarget: condition === "AX" ? "target" : "non-target",
+                }  
         })
     }
 
@@ -88,8 +93,10 @@
         const TRIAL_LIST = generateTrialList(n)
         return TRIAL_LIST.map((condition) => {
             return {
-                cue: condition[0],
-                probe: condition[1],
+                cue: condition.cue,
+                probe: condition.probe,
+                condition: condition.condition,
+                isTarget: condition.isTarget,
             }
         })
     }
@@ -154,6 +161,14 @@
         },
         trial_duration: MAX_ANSWER_TIME, 
         choices: [TARGET_KEY, NON_TARGET_KEY],
+        on_finish: (data) => {
+            data.cue = jsPsych.timelineVariable("cue", true)
+            data.probe = jsPsych.timelineVariable("probe", true)
+            data.condition = jsPsych.timelineVariable("condition", true)
+            data.type = jsPsych.timelineVariable("isTarget", true)
+            const answer = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.keypress)
+            data.correct = answer === TARGET_ANSWER
+        }
     }
 
 
