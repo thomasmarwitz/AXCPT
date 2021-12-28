@@ -98,6 +98,10 @@
         return LAST_DATA.rt != null
     }
 
+    function answeredLastTrialCorrect() {
+        return false
+    }
+
     function getDelayTrial(delayTime) {
         return {
             type: "html-keyboard-response",
@@ -113,7 +117,7 @@
         type: "instructions",
         pages: [
             "Instruktionen...",
-            "Mit den Tasten f/j soll zwischen Target / Non-Target unterschieden werden"
+            "Mit den Tasten <strong>f / j</strong> soll zwischen <strong>Target / Non-Target</strong> unterschieden werden"
         ],
         show_clickable_nav: true,
     }
@@ -152,9 +156,26 @@
             }
         },
         trial_duration: 1,
+        choices: jsPsych.NO_KEYS,
         on_finish: () => {
             changeBackgroundColor(BACKGROUND_COLOR)
         }
+    }
+
+    // used for practicing
+    const FEEDBACK = {
+        type: "html-keyboard-response",
+        stimulus: () => {
+            if (answeredLastTrial()) {
+                return `<span style="font-size:${PENALITY_FONTSIZE}">TOO SLOW!</span>`
+            } else if (answeredLastTrialCorrect()) {
+                return "RICHTIG"
+            } else {
+                return "FALSCH"
+            }
+        },
+        trial_duration: 1000,
+        choices: jsPsych.NO_KEYS,
     }
 
 
