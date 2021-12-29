@@ -47,9 +47,7 @@
     const FEEDBACK_FONTSIZE = "60px"
     const VISUAL_FEEDBACK_COLOR = "#BFBFBF"
     const BACKGROUND_COLOR = "#686868"
-    const TARGET_ANSWER = "f"
-    const NON_TARGET_ANSWER = "j"
-    const PHP_SCRIPT_FILE = "write_data.php"
+    const NO_ANSWER_GIVEN = "-"
     let trialIndex = 0
 
     const INTERTRIAL_DELAY = DELAY == SHORT_CONDITION_TIME ? LONG_CONDITION_TIME : SHORT_CONDITION_TIME // varies inversly
@@ -218,9 +216,13 @@
             data.probe = jsPsych.timelineVariable("probe", true)
             data.condition = jsPsych.timelineVariable("condition", true)
             data.type = jsPsych.timelineVariable("isTarget", true)
-            const answer = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)
-            const correctAnswer = data.type === "target" ? TARGET_ANSWER : NON_TARGET_ANSWER
-            data.correct = answer === correctAnswer
+            if (data.rt !== null) {
+                const answer = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)
+                const correctAnswer = data.type === "target" ? TARGET_KEY : NON_TARGET_KEY
+                data.correct = answer === correctAnswer
+            } else {
+                data.correct = NO_ANSWER_GIVEN
+            }
             data.relevant = true // to filter for these trials
         }
     }
