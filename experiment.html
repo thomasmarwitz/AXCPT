@@ -50,7 +50,8 @@
     const VISUAL_FEEDBACK_COLOR = "#BFBFBF"
     const BACKGROUND_COLOR = "#686868"
     const NO_ANSWER_GIVEN = "-"
-    let trialIndex = 0
+    let trialIndex = 0 // continous
+    let trialBlock = 0 // starts after practice at 1
 
     const INTERTRIAL_DELAY = DELAY == SHORT_CONDITION_TIME ? LONG_CONDITION_TIME : SHORT_CONDITION_TIME // varies inversly
 
@@ -86,7 +87,7 @@
                     probe: condition[1]
                         .replace("Y", RANDOM_NON_PROBE),
                     condition,
-                    isTarget: condition === "AX" ? "target" : "non-target",
+                    isTarget: condition === "AX",
                 }  
         })
     }
@@ -139,10 +140,12 @@
                 timeelap: trialData.time_elapsed,
                 phase: trialData.phase,
                 trialNr: trialData.trialIndex,
+                trialBlock: trialData.trialBlock,
                 trialType: trialData.type,
                 condition: trialData.condition,
                 cue: trialData.cue,
                 probe: trialData.probe,
+                answer: trialData.answer,
                 correct: trialData.correct,
                 rt: roundTo(trialData.rt, 2),
             })
@@ -214,15 +217,19 @@
             data.phase = jsPsych.timelineVariable("isPractice", true) ? "practice" : "experiment"
             data.time = getTime()
             data.trialIndex = ++trialIndex // count continuously
+            data.trialBlock = ++trialBlock // count each block
             data.cue = jsPsych.timelineVariable("cue", true)
             data.probe = jsPsych.timelineVariable("probe", true)
             data.condition = jsPsych.timelineVariable("condition", true)
             data.type = jsPsych.timelineVariable("isTarget", true)
             if (data.rt !== null) {
                 const answer = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)
+                data.answer = answer
                 const correctAnswer = data.type === "target" ? TARGET_KEY : NON_TARGET_KEY
                 data.correct = answer === correctAnswer
             } else {
+                // TODO: should we do this? data.rt = MAX_ANSWER_TIME // time took to answer
+                data.answer = NO_ANSWER_GIVEN
                 data.correct = NO_ANSWER_GIVEN
             }
             data.relevant = true // to filter for these trials
