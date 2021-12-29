@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AXCPT Mockup</title>
+    <title>AXCPT</title>
     <script src="jspsych-6.2.0/jspsych.js"></script>
     <!-- CSS -->
     <link href="jspsych-6.2.0/css/jspsych.css" rel="stylesheet" type="text/css">
     <!-- PLugins -->
     <script src="jspsych-6.2.0/plugins/jspsych-html-keyboard-response.js"></script>
     <script src="jspsych-6.2.0/plugins/jspsych-instructions.js"></script>
+    <script src="jspsych-6.2.0/plugins/jspsych-fullscreen.js"></script>
     <!--Include jQuery library-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <!--load custom helper scripts-->
@@ -50,6 +51,14 @@
     const VISUAL_FEEDBACK_COLOR = "#BFBFBF"
     const BACKGROUND_COLOR = "#686868"
     const NO_ANSWER_GIVEN = "-"
+    const FULLSCREEN_START_MESSAGE = (
+        `
+        <p style="font-size:36px;"><strong>Herzlich willkommen zum AXCPT-Experiment</strong></p>
+        <p style="font-size:26px; line-height: 34px;">Drücken Sie auf "Weiter", um in den Vollbildmodus<br>
+            zu wechseln und mit dem Experiment zu beginnen.</p>
+        `
+    )
+    // both are incremented before storing => starting at 1
     let trialIndex = 0 // continous
     let trialBlock = 0 // starts after practice at 1
 
@@ -172,6 +181,22 @@
 
     // TRIALS
 
+    const ENTER_FULLSCREEN = {
+        type: "fullscreen",
+        message: FULLSCREEN_START_MESSAGE,
+        button_label: "Weiter",
+        fullscreen_mode: true,
+        delay_after: 0,
+    }
+
+
+    const EXIT_FULLSCREEN = {
+        type: "fullscreen",
+        fullscreen_mode: false, // false will cause to leave fullscreen
+        delay_after: 0,
+    }
+
+
     const INSTRUCTIONS = {
         type: "instructions",
         pages: [
@@ -194,7 +219,11 @@
         show_clickable_nav: true,
         button_label_next: "Weiter",
         allow_backward: false,
+        on_start: () => {
+            trialBlock = 0 // reset
+        }
     }
+
 
     const CUE_PRESENTATION = {
         type: "html-keyboard-response",
@@ -217,7 +246,7 @@
             data.phase = jsPsych.timelineVariable("isPractice", true) ? "practice" : "experiment"
             data.time = getTime()
             data.trialIndex = ++trialIndex // count continuously
-            data.trialBlock = ++trialBlock // count each block
+            data.trialBlock = ++trialBlock // count each block, reset in AFTER_PRACTICE
             data.cue = jsPsych.timelineVariable("cue", true)
             data.probe = jsPsych.timelineVariable("probe", true)
             data.condition = jsPsych.timelineVariable("condition", true)
@@ -281,6 +310,7 @@
         }
     }
 
+
     // STRUCTURE
 
     const PRACTICE_TRIALS = {
@@ -294,7 +324,7 @@
     }
 
     jsPsych.init({
-        timeline: [INSTRUCTIONS, PRACTICE_TRIALS, AFTER_PRACTICE, EXP_TRIALS, END],
+        timeline: [ENTER_FULLSCREEN, INSTRUCTIONS, PRACTICE_TRIALS, AFTER_PRACTICE, EXP_TRIALS, EXIT_FULLSCREEN, END],
     })
 </script>
 </html>
