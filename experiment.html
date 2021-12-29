@@ -202,6 +202,9 @@
         type: "fullscreen",
         fullscreen_mode: false, // false will cause to leave fullscreen
         delay_after: 0,
+        on_start: () => {
+            showCursor()
+        },
     }
 
 
@@ -214,6 +217,9 @@
         show_clickable_nav: true,
         button_label_next: "Weiter",
         allow_backward: false,
+        on_finish: () => {
+            hideCursor()
+        }
     }
 
     
@@ -228,6 +234,10 @@
         allow_backward: false,
         on_start: () => {
             trialBlock = 0 // reset
+            showCursor()
+        },
+        on_finish: () => {
+            hideCursor()
         }
     }
 
