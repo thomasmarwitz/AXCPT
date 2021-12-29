@@ -58,6 +58,14 @@
             zu wechseln und mit dem Experiment zu beginnen.</p>
         `
     )
+    const INSTRUCTION_SLIDE = (
+        `
+        Im Folgenden werden Ihnen Buchstaben präsentiert.<br>
+        Wenn auf ein <strong>A</strong> als nächster Buchstabe ein <strong>X</strong> folgt,<br>
+        drücken Sie bitte die Taste <strong>f</strong>, ansonsten die Tasten <strong>j</strong>.<br>
+        Sie haben 1,5 Sekunden Zeit für Ihre Antwort.
+        `
+    )
     // both are incremented before storing => starting at 1
     let trialIndex = 0 // continous
     let trialBlock = 0 // starts after practice at 1
@@ -200,9 +208,8 @@
     const INSTRUCTIONS = {
         type: "instructions",
         pages: [
-            "Instruktionen...",
-            "Mit den Tasten <strong>f / j</strong> soll zwischen <strong>Target / Non-Target</strong> unterschieden werden",
-            "Drücke auf 'Weiter', um anhand einiger Beispiele zu üben"
+            INSTRUCTION_SLIDE,
+            "Drücke auf \"Weiter\", um anhand einiger Beispiele zu üben."
         ],
         show_clickable_nav: true,
         button_label_next: "Weiter",
