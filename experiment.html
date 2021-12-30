@@ -43,7 +43,7 @@
     const LONG_CONDITION_TIME = 5000
     const MAX_ANSWER_TIME = 1500
     const STIMULUS_PRESENTATION_TIME = 500
-    const DISTRACTION_INTERFERENCE = false
+    const DISTRACTION_INTERFERENCE = false // this is not yet implemented
     const DELAY = SHORT_CONDITION_TIME // in seconds, long delay: 5(!)-10s
     const CUE_PROBE_FONTSIZE = "60px"
     const PENALITY_FONTSIZE = "60px"
@@ -51,6 +51,8 @@
     const VISUAL_FEEDBACK_COLOR = "#BFBFBF"
     const BACKGROUND_COLOR = "#686868"
     const NO_ANSWER_GIVEN = "-"
+    const TRIALS_PER_BLOCK = 50
+    const EXPERIMENT_STRUCTURE = [SHORT_CONDITION_TIME, LONG_CONDITION_TIME] // delays given
     const FULLSCREEN_START_MESSAGE = (
         `
         <p style="font-size:36px;"><strong>Herzlich willkommen zum AXCPT-Experiment</strong></p>
@@ -69,6 +71,7 @@
     // both are incremented before storing => starting at 1
     let trialIndex = 0 // continous
     let trialBlock = 0 // starts after practice at 1
+    let lastTrialSet = "" // used to track when block number has changed
 
     const INTERTRIAL_DELAY = DELAY == SHORT_CONDITION_TIME ? LONG_CONDITION_TIME : SHORT_CONDITION_TIME // varies inversly
 
@@ -109,7 +112,7 @@
         })
     }
 
-    function generateTimelineVariables(n, isPractice=false) {
+    function generateTimelineVariables(n, isPractice=false, currentSet=1) {
         if (n % 10 != 0) {
             console.log("Warning, not a multiple of ten, filling up to multiple of ten")
             n += 10 - (n % 10) // fill up to ten
@@ -122,6 +125,7 @@
                 condition: condition.condition,
                 isTarget: condition.isTarget,
                 isPractice,
+                currentSet: isPractice ? "-" : currentSet, // keep track of current block
             }
         })
     }
@@ -233,7 +237,6 @@
         button_label_next: "Weiter",
         allow_backward: false,
         on_start: () => {
-            trialBlock = 0 // reset
             showCursor()
         },
         on_finish: () => {
@@ -263,7 +266,15 @@
             data.phase = jsPsych.timelineVariable("isPractice", true) ? "practice" : "experiment"
             data.time = getTime()
             data.trialIndex = ++trialIndex // count continuously
+            
+            // reset trial Block?
+            const currentTrialSet = jsPsych.timelineVariable("currentSet", true)
+            if (currentTrialSet !== lastTrialSet) {
+                trialBlock = 0
+                lastTrialSet = currentTrialSet // update
+            }
             data.trialBlock = ++trialBlock // count each block, reset in AFTER_PRACTICE
+            data.trialSet = currentTrialSet
             data.cue = jsPsych.timelineVariable("cue", true)
             data.probe = jsPsych.timelineVariable("probe", true)
             data.condition = jsPsych.timelineVariable("condition", true)
