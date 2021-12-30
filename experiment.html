@@ -344,8 +344,9 @@
 
     function generateFullExperimentTrials(trialAmount, delayCondition=SHORT_CONDITION_TIME, isPractice=false) {
         const INTERTRIAL_CONDITION = delayCondition === SHORT_CONDITION_TIME ? LONG_CONDITION_TIME : SHORT_CONDITION_TIME
+        const AFTER_PROBE_TRIAL = isPractice ? FEEDBACK : PENALITY_AND_VISUAL
         return {
-            timeline: [CUE_PRESENTATION, getDelayTrial(condition), PROBE_PRESENTATION, PENALITY_AND_VISUAL, getDelayTrial(INTERTRIAL_CONDITION)],
+            timeline: [CUE_PRESENTATION, getDelayTrial(delayCondition), PROBE_PRESENTATION, AFTER_PROBE_TRIAL, getDelayTrial(INTERTRIAL_CONDITION)],
             timeline_variables: generateTimelineVariables(trialAmount, isPractice=isPractice),
         }
     }
@@ -360,9 +361,25 @@
     const A_PRACTICE = generateFullExperimentTrials(TRIALS_PER_PRACTICE, EXPERIMENT_STRUCTURE.A, isPractice=true)
     const B_PRACTICE = generateFullExperimentTrials(TRIALS_PER_PRACTICE, EXPERIMENT_STRUCTURE.B, isPractice=true)
 
-    const PAUSE = null
-    const timeline = [A_PRACTICE, A_1, PAUSE, A_2, PAUSE, B_PRACTICE, B_1, PAUSE, B_2]
-    
+    function getPauseTrial(completedParts) {
+        return {
+            type: "html-keyboard-response",
+            stimulus: `<progress value="${completedParts}" max="4">70 %</progress><br><br>Wie wäre es mit einer kleinen Pause?<br>Drücken Sie die <em>Leertaste</em>, um fortzufahren.`,
+            choices: ["space"],
+        }
+    }
+
+    // placeholder
+    const INSTRUCTIONS_A = {
+        type: "html-keyboard-response",
+        stimulus: "Instructions A",
+    }
+    const INSTRUCTIONS_B = {
+        type: "html-keyboard-response",
+        stimulus: "Instructions A",
+    }
+    const TIMELINE_ALL_TRIALS = [INSTRUCTIONS_A, A_PRACTICE, A_1, getPauseTrial(1), A_2, getPauseTrial(2), INSTRUCTIONS_B, B_PRACTICE, B_1, getPauseTrial(3), B_2]
+
     /*
     const PRACTICE_TRIALS = {
         timeline: [CUE_PRESENTATION, getDelayTrial(DELAY), PROBE_PRESENTATION, FEEDBACK, getDelayTrial(INTERTRIAL_DELAY)],
@@ -373,10 +390,14 @@
         timeline: [CUE_PRESENTATION, getDelayTrial(DELAY), PROBE_PRESENTATION, PENALITY_AND_VISUAL, getDelayTrial(INTERTRIAL_DELAY)],
         timeline_variables: generateTimelineVariables(AMOUNT_EXPERIMENT_TRIALS, isPractice=false),
     }
-    */
 
     jsPsych.init({
         timeline: [ENTER_FULLSCREEN, INSTRUCTIONS, PRACTICE_TRIALS, AFTER_PRACTICE, EXP_TRIALS, EXIT_FULLSCREEN, END],
+    })
+    */
+
+    jsPsych.init({
+        timeline: [ENTER_FULLSCREEN, INSTRUCTIONS, ...TIMELINE_ALL_TRIALS, EXIT_FULLSCREEN, END],
     })
 </script>
 </html>
