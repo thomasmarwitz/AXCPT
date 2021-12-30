@@ -51,7 +51,7 @@
     const VISUAL_FEEDBACK_COLOR = "#BFBFBF"
     const BACKGROUND_COLOR = "#686868"
     const NO_ANSWER_GIVEN = "-"
-    const TRIALS_PER_BLOCK = 50
+    const TRIALS_PER_BLOCK = 10
     const TRIALS_PER_PRACTICE = 10
     const EXPERIMENT_STRUCTURE = {"A": SHORT_CONDITION_TIME, "B": LONG_CONDITION_TIME} // delays given
     const FULLSCREEN_START_MESSAGE = (
@@ -374,11 +374,23 @@
         type: "html-keyboard-response",
         stimulus: "Instructions A",
     }
+    
+    const AFTER_PRACTICE_A = {
+        type: "html-keyboard-response",
+        stimulus: "Nun geht es los mit den echten Trials",
+    }
+    
     const INSTRUCTIONS_B = {
         type: "html-keyboard-response",
         stimulus: "Instructions A",
     }
-    const TIMELINE_ALL_TRIALS = [INSTRUCTIONS_A, A_PRACTICE, A_1, getPauseTrial(1), A_2, getPauseTrial(2), INSTRUCTIONS_B, B_PRACTICE, B_1, getPauseTrial(3), B_2]
+    
+    const AFTER_PRACTICE_B = {
+        type: "html-keyboard-response",
+        stimulus: "Nun geht es los mit den echten Trials",
+    }
+
+    const TIMELINE_ALL_TRIALS = [INSTRUCTIONS_A, A_PRACTICE, AFTER_PRACTICE_A, A_1, getPauseTrial(1), A_2, getPauseTrial(2), INSTRUCTIONS_B, B_PRACTICE, AFTER_PRACTICE_B, B_1, getPauseTrial(3), B_2]
 
     /*
     const PRACTICE_TRIALS = {
