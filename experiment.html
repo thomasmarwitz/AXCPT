@@ -392,22 +392,6 @@
 
     const TIMELINE_ALL_TRIALS = [INSTRUCTIONS_A, A_PRACTICE, AFTER_PRACTICE_A, A_1, getPauseTrial(1), A_2, getPauseTrial(2), INSTRUCTIONS_B, B_PRACTICE, AFTER_PRACTICE_B, B_1, getPauseTrial(3), B_2]
 
-    /*
-    const PRACTICE_TRIALS = {
-        timeline: [CUE_PRESENTATION, getDelayTrial(DELAY), PROBE_PRESENTATION, FEEDBACK, getDelayTrial(INTERTRIAL_DELAY)],
-        timeline_variables: generateTimelineVariables(AMOUNT_PRACTICE_TRIALS, isPractice=true),
-    }
-    
-    const EXP_TRIALS = {
-        timeline: [CUE_PRESENTATION, getDelayTrial(DELAY), PROBE_PRESENTATION, PENALITY_AND_VISUAL, getDelayTrial(INTERTRIAL_DELAY)],
-        timeline_variables: generateTimelineVariables(AMOUNT_EXPERIMENT_TRIALS, isPractice=false),
-    }
-
-    jsPsych.init({
-        timeline: [ENTER_FULLSCREEN, INSTRUCTIONS, PRACTICE_TRIALS, AFTER_PRACTICE, EXP_TRIALS, EXIT_FULLSCREEN, END],
-    })
-    */
-
     jsPsych.init({
         timeline: [ENTER_FULLSCREEN, INSTRUCTIONS, ...TIMELINE_ALL_TRIALS, EXIT_FULLSCREEN, END],
     })
