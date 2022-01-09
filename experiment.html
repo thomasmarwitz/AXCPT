@@ -262,7 +262,8 @@
         stimulus: () => {
             return `<span style="font-size:${CUE_PROBE_FONTSIZE}">${jsPsych.timelineVariable("probe", true)}</span>`
         },
-        trial_duration: MAX_ANSWER_TIME, 
+        trial_duration: MAX_ANSWER_TIME,
+        response_ends_trial: false, 
         choices: [TARGET_KEY, NON_TARGET_KEY],
         on_finish: (data) => {
             data.phase = jsPsych.timelineVariable("isPractice", true) ? "practice" : "experiment"
@@ -324,7 +325,7 @@
             } else if (answeredLastTrialCorrect()) {
                 return `<span style="font-size:${PENALITY_FONTSIZE};color: lightgreen">RICHTIG</span>`
             } else {
-                return `<span style="font-size:${PENALITY_FONTSIZE};color: red">FALSCH</span>`
+                return `<span style="font-size:${PENALITY_FONTSIZE};color: darkred">FALSCH</span>`
             }
         },
         trial_duration: 1000,
