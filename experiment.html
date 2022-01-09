@@ -53,7 +53,7 @@
     const NO_ANSWER_GIVEN = "-"
     const TRIALS_PER_BLOCK = 10
     const TRIALS_PER_PRACTICE = 10
-    const EXPERIMENT_STRUCTURE = {"A": SHORT_CONDITION_TIME, "B": LONG_CONDITION_TIME} // delays given
+    const EXPERIMENT_STRUCTURE = {A: SHORT_CONDITION_TIME, B: LONG_CONDITION_TIME} // delays given
     const FULLSCREEN_START_MESSAGE = (
         `
         <p style="font-size:36px;"><strong>Herzlich willkommen zum AXCPT-Experiment</strong></p>
@@ -228,22 +228,6 @@
             showCursor()
         },
     }
-
-
-    const INSTRUCTIONS = {
-        type: "instructions",
-        pages: [
-            INSTRUCTION_SLIDE,
-            "Drücken Sie auf \"Weiter\", um anhand einiger Beispiele zu üben."
-        ],
-        show_clickable_nav: true,
-        button_label_next: "Weiter",
-        allow_backward: false,
-        on_finish: () => {
-            hideCursor()
-        }
-    }
-
     
     const AFTER_PRACTICE = {
         type: "instructions",
@@ -350,7 +334,10 @@
 
     const END = {
         type: "html-keyboard-response",
-        stimulus: "Das Experiment ist zu Ende, die Daten wurden gespeichert!",
+        stimulus: `<div class="imgbox">
+                <img class="center-fit" src='${FINISHED_MSG}'>
+            </div>`,
+        reponse_ends_trial: false,
         on_start: () => {
             finishUp() // save data
         }
@@ -378,34 +365,47 @@
     const A_PRACTICE = generateFullExperimentTrials(TRIALS_PER_PRACTICE, EXPERIMENT_STRUCTURE.A, isPractice=true)
     const B_PRACTICE = generateFullExperimentTrials(TRIALS_PER_PRACTICE, EXPERIMENT_STRUCTURE.B, isPractice=true)
 
-    function getPauseTrial(completedParts) {
+    // placeholder
+
+    function generatePagesFromImages(images) {
+        let _images = images
+        if (typeof images === "string") {
+            _images = [images]
+        }
+        return _images.map(img => (`<div class="imgbox">
+                <img class="center-fit" src='${img}'>
+            </div>`))
+    }
+
+    function generateInstructionTrials(pages) {
         return {
-            type: "html-keyboard-response",
-            stimulus: `<progress value="${completedParts}" max="4">70 %</progress><br><br>Wie wäre es mit einer kleinen Pause?<br>Drücken Sie die <em>Leertaste</em>, um fortzufahren.`,
-            choices: ["space"],
+            type: "instructions",
+            pages: pages,
+            show_clickable_nav: true,
+            button_label_next: "Weiter",
+            allow_backward: false,
+            on_start: () => {
+                showCursor()
+            },
+            on_finish: () => {
+                hideCursor()
+            }
         }
     }
 
-    // placeholder
-    const INSTRUCTIONS_A = {
-        type: "html-keyboard-response",
-        stimulus: "Instructions A",
+    function getPauseTrial(completedParts) {
+        return generateInstructionTrials([`<progress value="${completedParts}" max="4">70 %</progress><br><br>Wie wäre es mit einer kleinen Pause?<br>Drücken Sie "Weiter", um fortzufahren.`])
     }
+
+    const INSTRUCTIONS =        generateInstructionTrials(generatePagesFromImages( [INSTRUCTIONS_1, INSTRUCTIONS_2]))
+
+    const INSTRUCTIONS_A =      generateInstructionTrials(generatePagesFromImages( START_PRACTICE_A))
+
+    const AFTER_PRACTICE_A =    generateInstructionTrials(generatePagesFromImages( [POST_PRACTICE_A, START_EXPERIMENT_A]))
     
-    const AFTER_PRACTICE_A = {
-        type: "html-keyboard-response",
-        stimulus: "Nun geht es los mit den echten Trials",
-    }
-    
-    const INSTRUCTIONS_B = {
-        type: "html-keyboard-response",
-        stimulus: "Instructions A",
-    }
-    
-    const AFTER_PRACTICE_B = {
-        type: "html-keyboard-response",
-        stimulus: "Nun geht es los mit den echten Trials",
-    }
+    const INSTRUCTIONS_B =      generateInstructionTrials(generatePagesFromImages( START_PRACTICE_B))
+
+    const AFTER_PRACTICE_B =    generateInstructionTrials(generatePagesFromImages( START_EXPERIMENT_B))
 
     const TIMELINE_ALL_TRIALS = [INSTRUCTIONS_A, A_PRACTICE, AFTER_PRACTICE_A, A_1, getPauseTrial(1), A_2, getPauseTrial(2), INSTRUCTIONS_B, B_PRACTICE, AFTER_PRACTICE_B, B_1, getPauseTrial(3), B_2]
 

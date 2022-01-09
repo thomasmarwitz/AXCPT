@@ -5,3 +5,13 @@ body {
 progress[value] {
     width: 500px;
 }
+
+.imgbox {
+    display: grid;
+    height: 100%;
+}
+.center-fit {
+    max-width: 100%;
+    max-height: 85vh;
+    margin: auto;
+}
