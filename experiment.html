@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AXCPT</title>
+    <title>Buchstabenpaare</title>
     <script src="jspsych-6.2.0/jspsych.js"></script>
     <!-- CSS -->
     <link href="jspsych-6.2.0/css/jspsych.css" rel="stylesheet" type="text/css">
@@ -49,7 +49,7 @@
     const PENALITY_FONTSIZE = "60px"
     const FEEDBACK_FONTSIZE = "60px"
     const VISUAL_FEEDBACK_COLOR = "#BFBFBF"
-    const BACKGROUND_COLOR = "#686868"
+    const BACKGROUND_COLOR = "#7f7f7f"//"#686868"
     const NO_ANSWER_GIVEN = "-"
     const TRIALS_PER_BLOCK = 10
     const TRIALS_PER_PRACTICE = 10
@@ -69,6 +69,23 @@
         Sie haben 1,5 Sekunden Zeit für Ihre Antwort.
         `
     )
+    
+    // IMAGES
+    const IMG_FOLDER = "./background/slides/Instruktion_AXCPT/"
+    const WELCOME_MSG =         IMG_FOLDER + "01welcome.png"		
+    const INSTRUCTIONS_1 =      IMG_FOLDER + "02instructions.png"
+    const INSTRUCTIONS_2 =      IMG_FOLDER + "03instructions.png"
+    const START_PRACTICE_A =    IMG_FOLDER + "04start-practice-A.png"	
+    const POST_PRACTICE_A =  IMG_FOLDER + "05post-practice-A.png"
+    const START_EXPERIMENT_A =  IMG_FOLDER + "06start-exp-A.png"	
+    const START_PRACTICE_B =    IMG_FOLDER + "07start-practice-B.png" // post first exp	
+    const START_EXPERIMENT_B =  IMG_FOLDER + "08start-exp-B.png"
+    const FINISHED_MSG =        IMG_FOLDER + "09finished.png"
+    const ALL_IMAGES = [
+        WELCOME_MSG, INSTRUCTIONS_1, INSTRUCTIONS_2, START_PRACTICE_A, POST_PRACTICE_A, START_PRACTICE_B,
+        START_EXPERIMENT_A, START_EXPERIMENT_B, FINISHED_MSG
+    ]
+
     // both are incremented before storing => starting at 1
     let trialIndex = 0 // continous
     let trialBlock = 0 // starts after practice at 1
@@ -394,6 +411,7 @@
 
     jsPsych.init({
         timeline: [ENTER_FULLSCREEN, INSTRUCTIONS, ...TIMELINE_ALL_TRIALS, EXIT_FULLSCREEN, END],
+        preload_images: ALL_IMAGES,
     })
 </script>
 </html>
