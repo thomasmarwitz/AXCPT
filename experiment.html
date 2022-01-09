@@ -303,9 +303,9 @@
         },
         on_start: (data) => {
             const hasAnswered = answeredLastTrial()
-            data.trial_duration = hasAnswered ? 10 : 2000
+            data.trial_duration = hasAnswered ? 1 : 2000 // 10 => 1
             if (hasAnswered) {
-                changeBackgroundColor(VISUAL_FEEDBACK_COLOR)
+                // changeBackgroundColor(VISUAL_FEEDBACK_COLOR)
             }
         },
         trial_duration: 1,
