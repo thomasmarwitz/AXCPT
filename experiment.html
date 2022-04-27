@@ -396,7 +396,7 @@
     }
 
     function getPauseTrial(completedParts) {
-        return generateInstructionTrials([`<progress value="${completedParts}" max="4">70 %</progress><br><br>Wie wäre es mit einer kleinen Pause?<br>Drücken Sie "Weiter", um fortzufahren.`])
+        return generateInstructionTrials([`<progress value="${completedParts}" max="4">70 %</progress><br><br>Wie wäre es mit einer kleinen Pause?<br>Drücken Sie die <em>Leertaste</em>, um fortzufahren.`])
     }
 
     const INSTRUCTIONS =        generateInstructionTrials(generatePagesFromImages( [INSTRUCTIONS_1, INSTRUCTIONS_2]))
