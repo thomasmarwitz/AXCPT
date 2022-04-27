@@ -56,7 +56,7 @@
     const EXPERIMENT_STRUCTURE = {A: SHORT_CONDITION_TIME, B: LONG_CONDITION_TIME} // delays given
     const FULLSCREEN_START_MESSAGE = (
         `
-        <p style="font-size:36px;"><strong>Herzlich willkommen zum AXCPT-Experiment</strong></p>
+        <p style="font-size:36px;"><strong>Herzlich willkommen zur Buchstabenaufgabe</strong></p>
         <p style="font-size:26px; line-height: 34px;">Drücken Sie auf "Weiter", um in den Vollbildmodus<br>
             zu wechseln und mit dem Experiment zu beginnen.</p>
         `
@@ -74,15 +74,14 @@
     const IMG_FOLDER = "./img/"
     const WELCOME_MSG =         IMG_FOLDER + "01welcome.png"		
     const INSTRUCTIONS_1 =      IMG_FOLDER + "02instructions.png"
-    const INSTRUCTIONS_2 =      IMG_FOLDER + "03instructions.png"
-    const START_PRACTICE_A =    IMG_FOLDER + "04start-practice-A.png"	
-    const POST_PRACTICE_A =  IMG_FOLDER + "05post-practice-A.png"
-    const START_EXPERIMENT_A =  IMG_FOLDER + "06start-exp-A.png"	
-    const START_PRACTICE_B =    IMG_FOLDER + "07start-practice-B.png" // post first exp	
-    const START_EXPERIMENT_B =  IMG_FOLDER + "08start-exp-B.png"
-    const FINISHED_MSG =        IMG_FOLDER + "09finished.png"
+    const INSTRUCTIONS_2 =      IMG_FOLDER + "03instructions.png" // 04 not needed anymore
+    const POST_PRACTICE_A =     IMG_FOLDER + "04post-practice-A.png"
+    const START_EXPERIMENT_A =  IMG_FOLDER + "05start-exp-A.png"	
+    const START_PRACTICE_B =    IMG_FOLDER + "06start-practice-B.png" // post first exp	
+    const START_EXPERIMENT_B =  IMG_FOLDER + "07start-exp-B.png"
+    const FINISHED_MSG =        IMG_FOLDER + "08finished.png"
     const ALL_IMAGES = [
-        WELCOME_MSG, INSTRUCTIONS_1, INSTRUCTIONS_2, START_PRACTICE_A, POST_PRACTICE_A, START_PRACTICE_B,
+        WELCOME_MSG, INSTRUCTIONS_1, INSTRUCTIONS_2, POST_PRACTICE_A, START_PRACTICE_B,
         START_EXPERIMENT_A, START_EXPERIMENT_B, FINISHED_MSG
     ]
 
@@ -382,9 +381,11 @@
         return {
             type: "instructions",
             pages: pages,
-            show_clickable_nav: true,
-            button_label_next: "Weiter",
+            show_clickable_nav: false,
+            // button_label_next: "Weiter",
+            key_forward: "space",
             allow_backward: false,
+            post_trial_gap: 1000, // delay
             on_start: () => {
                 showCursor()
             },
@@ -400,7 +401,7 @@
 
     const INSTRUCTIONS =        generateInstructionTrials(generatePagesFromImages( [INSTRUCTIONS_1, INSTRUCTIONS_2]))
 
-    const INSTRUCTIONS_A =      generateInstructionTrials(generatePagesFromImages( START_PRACTICE_A))
+
 
     const AFTER_PRACTICE_A =    generateInstructionTrials(generatePagesFromImages( [POST_PRACTICE_A, START_EXPERIMENT_A]))
     
@@ -408,7 +409,7 @@
 
     const AFTER_PRACTICE_B =    generateInstructionTrials(generatePagesFromImages( START_EXPERIMENT_B))
 
-    const TIMELINE_ALL_TRIALS = [INSTRUCTIONS_A, A_PRACTICE, AFTER_PRACTICE_A, A_1, getPauseTrial(1), A_2, getPauseTrial(2), INSTRUCTIONS_B, B_PRACTICE, AFTER_PRACTICE_B, B_1, getPauseTrial(3), B_2]
+    const TIMELINE_ALL_TRIALS = [A_PRACTICE, AFTER_PRACTICE_A, A_1, getPauseTrial(1), A_2, getPauseTrial(2), INSTRUCTIONS_B, B_PRACTICE, AFTER_PRACTICE_B, B_1, getPauseTrial(3), B_2]
 
     jsPsych.init({
         timeline: [ENTER_FULLSCREEN, INSTRUCTIONS, ...TIMELINE_ALL_TRIALS, EXIT_FULLSCREEN, END],
