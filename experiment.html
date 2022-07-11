@@ -10,6 +10,7 @@
     <link href="jspsych-6.2.0/css/jspsych.css" rel="stylesheet" type="text/css">
     <!-- PLugins -->
     <script src="jspsych-6.2.0/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="jspsych-6.2.0/plugins/jspsych-survey-html-form.js"></script>
     <script src="jspsych-6.2.0/plugins/jspsych-instructions.js"></script>
     <script src="jspsych-6.2.0/plugins/jspsych-fullscreen.js"></script>
     <!--Include jQuery library-->
@@ -24,11 +25,7 @@
 <body id="experiment-body"></body>
 <script>
 
-    // Fullscreen, hidecursor
-
-    const SUBJECT_ID = jsPsych.randomization.randomID(16).toUpperCase()
-    const AMOUNT_EXPERIMENT_TRIALS = 10 // Cue + Probe is ONE trial
-    const AMOUNT_PRACTICE_TRIALS = 10
+    let SUBJECT_ID, SUPERVISOR_ID;
     const ALPHABET = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ']
     const PHP_SCRIPT_FILE = 'write_data.php' // SAVING DATA PHP-SCRIPT
     const CUE = "A"
@@ -40,7 +37,9 @@
     const NON_CUE = ALPHABET.filter((c) => !EXCLUDED_CUE.includes(c)) 
     const NON_PROBE = ALPHABET.filter((c) => !EXCLUDED_PROBE.includes(c)) 
     const SHORT_CONDITION_TIME = 1000
-    const LONG_CONDITION_TIME = 1000
+    const LONG_CONDITION_TIME = 5000
+    // delay between A-X 1000ms X-A 1000ms
+    // delay between A-X 5000ms X-A 1000ms
     const MAX_ANSWER_TIME = 1500
     const STIMULUS_PRESENTATION_TIME = 500
     const DISTRACTION_INTERFERENCE = false // this is not yet implemented
@@ -51,8 +50,10 @@
     const VISUAL_FEEDBACK_COLOR = "#BFBFBF"
     const BACKGROUND_COLOR = "#7f7f7f"//"#686868"
     const NO_ANSWER_GIVEN = "-"
-    const TRIALS_PER_BLOCK = 10
-    const TRIALS_PER_PRACTICE = 10
+
+    const TRIALS_PER_BLOCK = 10 // * 2 => Per Condition
+    const TRIALS_PER_PRACTICE = 10 // Per Condition
+
     const EXPERIMENT_STRUCTURE = {A: SHORT_CONDITION_TIME, B: LONG_CONDITION_TIME} // delays given
     const FULLSCREEN_START_MESSAGE = (
         `
@@ -90,7 +91,7 @@
     let trialBlock = 0 // starts after practice at 1
     let lastTrialSet = "" // used to track when block number has changed
 
-    const INTERTRIAL_DELAY = DELAY == SHORT_CONDITION_TIME ? LONG_CONDITION_TIME : SHORT_CONDITION_TIME // varies inversly
+    const INTERTRIAL_DELAY = 1000
 
     // UTILITY FUNCS
 
@@ -129,7 +130,7 @@
         })
     }
 
-    function generateTimelineVariables(n, isPractice=false, currentSet=1) {
+    function generateTimelineVariables(n, delay, isPractice=false, currentSet=1) {
         if (n % 10 != 0) {
             console.log("Warning, not a multiple of ten, filling up to multiple of ten")
             n += 10 - (n % 10) // fill up to ten
@@ -143,6 +144,7 @@
                 isTarget: condition.isTarget,
                 isPractice,
                 currentSet: isPractice ? "-" : currentSet, // keep track of current block
+                delay 
             }
         })
     }
@@ -170,10 +172,12 @@
     function processData(data) {
 
         const formattedData = []
-
+        const date = getDate("-");
         for (let trialData of data) {
             formattedData.push({
                 subcode: SUBJECT_ID,
+                supervisor: SUPERVISOR_ID,
+                date,
                 time: trialData.time,
                 timeelap: trialData.time_elapsed,
                 phase: trialData.phase,
@@ -181,6 +185,7 @@
                 trialBlock: trialData.trialBlock,
                 isTarget: trialData.isTarget,
                 condition: trialData.condition,
+                delay: trialData.delay,
                 cue: trialData.cue,
                 probe: trialData.probe,
                 answer: trialData.answer,
@@ -209,6 +214,23 @@
 
 
     // TRIALS
+
+    const ID_INPUT = {
+        type: 'survey-html-form',
+        html: /*html*/`
+            <p>Eingabemaske:</p>
+            <div class="survey-form">
+                <p style="margin: 0">Probanden ID:</p>     <input name="subjectid" type="text" /> 
+                <p style="margin: 0">Versuchsleiter ID:</p><input name="supervisorid" type="text" />
+            </div>
+        `,
+        button_label: 'Weiter',
+        on_finish: (data) => {
+            const parsed = JSON.parse(data.responses);
+            SUBJECT_ID = parsed.subjectid;
+            SUPERVISOR_ID = parsed.supervisorid;
+        }
+    };
 
     const ENTER_FULLSCREEN = {
         type: "fullscreen",
@@ -292,6 +314,7 @@
                 data.correct = NO_ANSWER_GIVEN
             }
             data.relevant = true // to filter for these trials
+            data.delay = jsPsych.timelineVariable("delay", true);
         }
     }
 
@@ -347,11 +370,10 @@
     // STRUCTURE
 
     function generateFullExperimentTrials(trialAmount, delayCondition=SHORT_CONDITION_TIME, isPractice=false) {
-        const INTERTRIAL_CONDITION = delayCondition === SHORT_CONDITION_TIME ? LONG_CONDITION_TIME : SHORT_CONDITION_TIME
         const AFTER_PROBE_TRIAL = isPractice ? FEEDBACK : PENALITY_AND_VISUAL
         return {
-            timeline: [CUE_PRESENTATION, getDelayTrial(delayCondition), PROBE_PRESENTATION, AFTER_PROBE_TRIAL, getDelayTrial(INTERTRIAL_CONDITION)],
-            timeline_variables: generateTimelineVariables(trialAmount, isPractice=isPractice),
+            timeline: [CUE_PRESENTATION, getDelayTrial(delayCondition), PROBE_PRESENTATION, AFTER_PROBE_TRIAL, getDelayTrial(INTERTRIAL_DELAY)],
+            timeline_variables: generateTimelineVariables(trialAmount, delayCondition, isPractice=isPractice),
         }
     }
 
@@ -412,7 +434,7 @@
     const TIMELINE_ALL_TRIALS = [A_PRACTICE, AFTER_PRACTICE_A, A_1, getPauseTrial(1), A_2, getPauseTrial(2), INSTRUCTIONS_B, B_PRACTICE, AFTER_PRACTICE_B, B_1, getPauseTrial(3), B_2]
 
     jsPsych.init({
-        timeline: [ENTER_FULLSCREEN, INSTRUCTIONS, ...TIMELINE_ALL_TRIALS, EXIT_FULLSCREEN, END],
+        timeline: [ID_INPUT, ENTER_FULLSCREEN, INSTRUCTIONS, ...TIMELINE_ALL_TRIALS, EXIT_FULLSCREEN, END],
         preload_images: ALL_IMAGES,
     })
 </script>

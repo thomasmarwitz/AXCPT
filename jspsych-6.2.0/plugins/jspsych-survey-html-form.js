@@ -98,10 +98,18 @@ jsPsych.plugins['survey-html-form'] = (function() {
       var response_time = endTime - startTime;
 
       var question_data = serializeArray(this);
+      for (let element of question_data) {
+        if (!element.value) {
+          alert("Please fill in all gaps!");
+          return;
+        }
+      }
 
       if (!trial.dataAsArray) {
         question_data = objectifyForm(question_data);
       }
+
+      
 
       // save data
       var trialdata = {

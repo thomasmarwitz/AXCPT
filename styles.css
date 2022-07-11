@@ -15,3 +15,11 @@ progress[value] {
     max-height: 85vh;
     margin: auto;
 }
+
+.survey-form {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    grid-row-gap: 0.5rem;
+    min-width: 60vw;
+    margin: 1rem;
+}
